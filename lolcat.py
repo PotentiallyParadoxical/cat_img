@@ -51,30 +51,31 @@ def build_cat_image():
         return text
 
     def write_text_on_draw(draw: ImageDraw.ImageDraw, text: str, bottom: bool):
-        xy = (24, 24)
-        font_size = 32
-        wrap_length = 32
+        xy = (256, 0)
+        font_size = 48
+        wrap_length = 24
+        anchor = "ma"
         if bottom:
-            # TODO: Adjust text anchors to draw from bottom instead of taking an x, y approach,
-            # As well as enabling properly centered text: https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-            xy = (24, 400)
-            font_size = 64
-            wrap_length = 16
+            # Change props if the text is on the bottom
+            xy = (256, 512)
+            font_size = 72
+            wrap_length = 12
+            anchor = "md"
 
         def draw_with_border(text, xy, text_color, outline_color):
             x, y = xy
             # Text Outline Cardinal
-            draw.text((x-1, y), text=text, fill=outline_color, font=font)
-            draw.text((x+1, y), text=text, fill=outline_color, font=font)
-            draw.text((x, y-1), text=text, fill=outline_color, font=font)
-            draw.text((x, y+1), text=text, fill=outline_color, font=font)
+            draw.text((x-1, y), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
+            draw.text((x+1, y), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
+            draw.text((x, y-1), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
+            draw.text((x, y+1), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
             # Text Outline Diagonal
-            draw.text((x-1, y-1), text=text, fill=outline_color, font=font)
-            draw.text((x-1, y+1), text=text, fill=outline_color, font=font)
-            draw.text((x+1, y-1), text=text, fill=outline_color, font=font)
-            draw.text((x+1, y+1), text=text, fill=outline_color, font=font)
+            draw.text((x-1, y-1), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
+            draw.text((x-1, y+1), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
+            draw.text((x+1, y-1), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
+            draw.text((x+1, y+1), text=text, fill=outline_color, font=font, anchor=anchor, align='center')
             # Regular Text
-            draw.text(xy, text=text, fill=text_color, font=font)
+            draw.text(xy, text=text, fill=text_color, font=font, anchor=anchor, align='center')
 
         font = ImageFont.truetype("impact.ttf", font_size)
         textwrapped = "\n".join(textwrap.wrap(text, wrap_length))
@@ -104,6 +105,7 @@ def build_cat_image():
     draw = ImageDraw.Draw(img)
     if args.owo_text:
         text = owo_text(text)
+        bottom_text = owo_text(bottom_text)
     write_text_on_draw(draw, text, False)
     write_text_on_draw(draw, bottom_text, True)
     img_byte_arr = io.BytesIO()
