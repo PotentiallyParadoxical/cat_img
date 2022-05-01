@@ -82,8 +82,6 @@ def build_cat_image():
         for line in sys.stdin:
             text += line + "\n"
         print(text)
-    else:
-        text = get_fortune()
 
     img = get_cat_img()
     # img = fry(img)
