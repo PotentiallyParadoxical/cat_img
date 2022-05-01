@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import requests
 
 def build_cat_image():
-    arg_parser = argparse.ArgumentParser(description='Caption an AI generated cat image with stdin and stdout the image')
+    arg_parser = argparse.ArgumentParser(description='Caption an AI generated cat image with stdin and stdout the image', epilog='Text following | in stdin string becomes bottom text. If more than one is used, anything between first and last pipe characters is lost')
     
     # Add all necessary cli args
     arg_parser.add_argument("-o", "--owo_text", help="Makes text from stdin cuter :3", action=argparse.BooleanOptionalAction)
