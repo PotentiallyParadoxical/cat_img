@@ -6,7 +6,12 @@ from PIL import Image, ImageDraw, ImageFont
 import requests
 
 def build_cat_image():
-    arg_parser = argparse.ArgumentParser(description='Caption an AI generated cat image with stdin in and stdout the image')
+    arg_parser = argparse.ArgumentParser(description='Caption an AI generated cat image with stdin and stdout the image')
+    
+    # Add all necessary cli args
+    arg_parser.add_argument("-o", "--owo_text", help="Makes text from stdin cuter :3", action=argparse.BooleanOptionalAction)
+    arg_parser.add_argument("-f", "--deep_fry", help="Deep fry the auto-generated cat", action=argparse.BooleanOptionalAction)
+
     args = arg_parser.parse_args()
     
     fortune_options = ['computers', '-s']
@@ -87,11 +92,12 @@ def build_cat_image():
         print(text)
 
     img = get_cat_img()
-    # img = fry(img)
+    if args.deep_fry:
+        img = fry(img)
     draw = ImageDraw.Draw(img)
-    # text = owo_text(text)
+    if args.owo_text:
+        text = owo_text(text)
     write_text_on_draw(draw, text)
-    # img.show()
     img_byte_arr = io.BytesIO()
     img.save(img_byte_arr, format="PNG")
     sys.stdout.buffer.write(img_byte_arr.getvalue())
