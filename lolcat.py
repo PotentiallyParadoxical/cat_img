@@ -1,11 +1,14 @@
 #!/usr/bin/env python
-import io, sys, subprocess, os
+import io, sys, subprocess, os, argparse
 import textwrap, re, random
 
 from PIL import Image, ImageDraw, ImageFont
 import requests
 
 def build_cat_image():
+    arg_parser = argparse.ArgumentParser(description='Caption an AI generated cat image with stdin in and stdout the image')
+    args = arg_parser.parse_args()
+    
     fortune_options = ['computers', '-s']
 
     def get_cat_img() -> Image.Image:
@@ -93,7 +96,6 @@ def build_cat_image():
     img.save(img_byte_arr, format="PNG")
     sys.stdout.buffer.write(img_byte_arr.getvalue())
     img.close()
-
 
 if __name__ == '__main__':
     build_cat_image()
