@@ -13,8 +13,6 @@ def build_cat_image():
     arg_parser.add_argument("-f", "--deep_fry", help="Deep fry the auto-generated cat", action=argparse.BooleanOptionalAction)
 
     args = arg_parser.parse_args()
-    
-    fortune_options = ['computers', '-s']
 
     def get_cat_img() -> Image.Image:
         # Get an image of a cat from public internet cat generating robo slave
@@ -23,12 +21,6 @@ def build_cat_image():
         r = requests.get(url, allow_redirects=True)
         r.raise_for_status()
         return Image.open(io.BytesIO(r.content))
-
-    def get_fortune() -> str:
-        # Run fortune and grab the stdout(output) and get output in text and return it
-        result = subprocess.run(
-            ['fortune'] + fortune_options, stdout=subprocess.PIPE)
-        return result.stdout.decode('utf-8')
 
     def owo_text(text: str) -> str:
         # Based off of https://github.com/zuzak/owo
@@ -58,7 +50,17 @@ def build_cat_image():
         text = random.choice(prefixes) + text + random.choice(suffixes)
         return text
 
-    def write_text_on_draw(draw: ImageDraw.ImageDraw, text: str):
+    def write_text_on_draw(draw: ImageDraw.ImageDraw, text: str, bottom: bool):
+        xy = (24, 24)
+        font_size = 32
+        wrap_length = 32
+        if bottom:
+            # TODO: Adjust text anchors to draw from bottom instead of taking an x, y approach,
+            # As well as enabling properly centered text: https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+            xy = (24, 400)
+            font_size = 64
+            wrap_length = 16
+
         def draw_with_border(text, xy, text_color, outline_color):
             x, y = xy
             # Text Outline Cardinal
@@ -74,9 +76,9 @@ def build_cat_image():
             # Regular Text
             draw.text(xy, text=text, fill=text_color, font=font)
 
-        font = ImageFont.truetype("impact.ttf", 32)
-        textwrapped = "\n".join(textwrap.wrap(text, 32))
-        draw_with_border(textwrapped, (24, 24), (255, 255, 255), (0, 0, 0))
+        font = ImageFont.truetype("impact.ttf", font_size)
+        textwrapped = "\n".join(textwrap.wrap(text, wrap_length))
+        draw_with_border(textwrapped, xy, (255, 255, 255), (0, 0, 0))
 
     def fry(img) -> Image.Image:
         import deeppyer, asyncio
@@ -86,10 +88,15 @@ def build_cat_image():
         return loop.run_until_complete(main())
 
     text = ""
+    bottom_text = ""
     if not os.isatty(0): # Data is being piped in use it instead of fortune
         for line in sys.stdin:
             text += line + "\n"
         print(text)
+        split_text = text.split("|")
+        if len(split_text) > 1:
+            text = split_text[0]
+            bottom_text = split_text[-1]
 
     img = get_cat_img()
     if args.deep_fry:
@@ -97,7 +104,8 @@ def build_cat_image():
     draw = ImageDraw.Draw(img)
     if args.owo_text:
         text = owo_text(text)
-    write_text_on_draw(draw, text)
+    write_text_on_draw(draw, text, False)
+    write_text_on_draw(draw, bottom_text, True)
     img_byte_arr = io.BytesIO()
     img.save(img_byte_arr, format="PNG")
     sys.stdout.buffer.write(img_byte_arr.getvalue())
